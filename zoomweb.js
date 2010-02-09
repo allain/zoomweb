@@ -5,14 +5,23 @@ $(function() {
   
   var scale = 20;
   
+  $body.css({
+      "-webkit-animation-duration" : "1s",      
+      "-webkit-animation-iteration-count": 1
+  });
+  
   var shrunkCount = 0;
   function shrinkElement(element, scale) {
     var $e = $(element);   
     var bodySize ={width: $("body").width(), height: $("body").height()};
     var size = {width: $e.width(), height: $e.height()};
         
-    $e.wrap("<div class='shrunkContainer' style='width: "+ (size.width*(1/scale)) + "px; height: "+ (size.height*(1/scale))+"px'/>");            
-    $e.css("width", size.width).css("height", size.height);
+    $e.wrap("<div class='shrunkContainer'/>").parent().css({width: (size.width*(1/scale)), height:(size.height*(1/scale))});            
+    $e.css({
+      "width": size.width,
+      "height": size.height});
+    
+    alert($body.css("-webkit-transform"));
     
     var offset = $e.offset();
     
@@ -22,10 +31,6 @@ $(function() {
       ".grow"+shrunkCount+" {"+
       "-webkit-transform-origin: "+offset.left+"px "+offset.top+"px; "+
       "-webkit-animation-name: grow"+shrunkCount+"-anim;"+
-      "-webkit-animation-duration: 1s; "+
-      "-webkit-animation-direction: alternate; "+
-      "-webkit-animation-iteration-count: 1; "+
-      "-webkit-animation-timing-function: linear;"+
       "}"+
     "@-webkit-keyframes grow"+shrunkCount+"-anim {"+
     "0% { -webkit-transform: scale(1) translate(0, 0); } "+
@@ -38,10 +43,6 @@ $(function() {
       ".shrink"+shrunkCount+" {"+
       "-webkit-transform-origin: "+offset.left+"px "+offset.top+"px; "+
       "-webkit-animation-name: shrink"+shrunkCount+"-anim;"+
-      "-webkit-animation-duration: 1s; "+
-      "-webkit-animation-direction: alternate; "+
-      "-webkit-animation-iteration-count: 1; "+
-      "-webkit-animation-timing-function: linear;"+
       "}"+
     "@-webkit-keyframes shrink"+shrunkCount+"-anim {"+
     "100% { -webkit-transform: scale(1) translate(0, 0); } "+
@@ -50,15 +51,14 @@ $(function() {
     "</style>");    
   }
   
-  $("body").append("<style type='text/css'>.shrunk { font-size: 100%; -webkit-transform-origin: 0 0; -webkit-transform: scale("+(1/scale)+"); text-align: left; }</style>");  
-  
+  $("body").append("<style type='text/css'>.shrunk { font-size: 100%; -webkit-transform-origin: 0 0; -webkit-transform: scale("+(1/scale)+"); text-align: left; }</style>");    
   
   $(".shrunk").each(function(i, e) {
     shrinkElement(e, scale)
     
     var $e = $(e);
       
-    $e.click(function() {   
+    $e.click(function() {        
       if ($body.hasClass("grow"+(i+1))) {          
         return;
       }
