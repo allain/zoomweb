@@ -10,17 +10,15 @@ body {
   background-color: #444;
 }
 
-
 .box {  
   display: block;
   float: left;  
-  text-align: center;  
+  background-color: #efefef;
 }
 
 .shrunkContainer {
   float: left; 
-  margin-right: 10px;
-  overflow: hidden;
+  margin-right: 10px;  
 }
 
 a.zoomOut {
@@ -48,7 +46,7 @@ a.zoomOut {
 <p><strong>Instructions:</strong> Click on one of the shrunk blocks to read it. When a block is in focused, click "Zoom Out" to return to the main view.</p>
 <p><strong>Note:</strong> I'm trying to push the maximum scale to see where it can go without being too jittery.</p>
 
-<div class="box shrunk" title="What is a Zoomable User Interface">
+<div class="shrunk box" title="What is a Zoomable User Interface">
   <a href="#" class="zoomOut">Zoom Out</a>
   
   <h2>What is a Zoomable User Interface (<a href="http://en.wikipedia.org/wiki/Zooming_user_interface">from Wikipedia</a>)</h2>
@@ -70,10 +68,10 @@ a.zoomOut {
   <p>Some experts consider the ZUI interface paradigm as a flexible and realistic successor to the traditional
   windowing GUI. But little effort is currently spent developing ZUIs, while there are ongoing efforts for developing GUIs.</p>
 
-  <img src="http://upload.wikimedia.org/wikipedia/en/5/55/ZUI_example.png" width="776" height="328" />
+  <img src="http://upload.wikimedia.org/wikipedia/en/5/55/ZUI_example.png" width="776" height="328" alt="ZUI Diagram" />
 </div>
 
-<div class="shrunk" title="Piccolo2D">
+<div class="shrunk box" title="Piccolo2D">
 <a href="#" class="zoomOut">Zoom Out</a> 
 <h2><a href="http://piccolo2d.org">Piccolo2D</a> - A Structured 2D Graphics Framework</h2>
 
@@ -87,7 +85,7 @@ for an overview. We use a "scene graph" model that is common to 3D environments.
 maintains a hierarchal structure of objects and cameras, allowing the application developer to orient, group and
 manipulate objects in meaningful ways.</p>
 
-</p>Why use Piccolo2D? It will allow you to build structured graphical applications without worrying so much about
+<p>Why use Piccolo2D? It will allow you to build structured graphical applications without worrying so much about
 the low level details. The infrastructure provides efficient repainting of the screen, bounds management, event
 handling and dispatch, picking (determining which visual object the mouse is over), animation, layout, and more.
 Normally, you would have to write all of this code from scratch. Additionally, if you want to build an application
