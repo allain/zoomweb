@@ -1,6 +1,6 @@
 // on page load complete, fire off a jQuery json-p query
 // against Google web search
-$(function() {  
+(function($) {
   var CSS3properties = {
     "transform" : true,
     "transform-origin": true,
@@ -46,7 +46,7 @@ $(function() {
     }
   })();
 
-  $.fn.scale = function(s) {
+  jQuery.fn.scale = function(s) {
     for (var i=0; i<this.length; i++) {
       var $e = $(this[i]);
       var size = {
@@ -73,11 +73,10 @@ $(function() {
   };
 
   var $currentTarget = null;
-  $.zoomTo = function (target) {
+  
+  jQuery.zoomTo = function (target) {
     var $target = $(target);    
-
     var offset = $target.data("offset");   
-
     var scale = $target.data("scale");
   
     var $body = $("body");
@@ -89,7 +88,8 @@ $(function() {
         ".grow {"+
         emitProperties(css3({
           "transform-origin": offset.left+"px "+offset.top+"px",
-          "animation-name": "grow-anim"
+          "animation-name": "grow-anim",
+          "width": "100%"
         }))+
         "}\n"+
         "@-webkit-keyframes grow-anim {\n"+
@@ -109,41 +109,42 @@ $(function() {
       }, 1000);
     } else if ($.browser.mozilla) {
       $body.append("<style type='text/css' class='dynamicCSS'>"+
-        ".grow {"+
-        emitProperties(css3({
-          "transform-origin": offset.left+"px "+offset.top+"px"
-        }))+
-        "}\n"+
         ".zoomed {\n" +
         emitProperties(css3({
           "transform-origin": offset.left + "px "+offset.top + "px",
           "transform": "translate("+(-offset.left)+"px,"+(-offset.top)+"px) scale("+scale+")"
-        }))+ 
+        }))+
         "}\n</style>");
 
-        var startTime = new Date().getTime();
-        var zoomIntervalId = setInterval(function() {        
-          var ratio = (new Date().getTime()-startTime)/1000;
-          $body.append("<style type='text/css' class='dynamicCSS'>"+
+      function emitAnimationStep(ratio) {
+        $body.append("<style type='text/css' class='dynamicCSS'>"+
           ".grow {"+
             emitProperties(css3({
               "transform-origin": offset.left+"px "+offset.top+"px",
-              "transform": "translate("+(-offset.left*ratio)+"px,"+(-offset.top*ratio)+"px) scale("+(scale * ratio)+")"
+              "transform": "translate("+(-offset.left*ratio)+"px,"+(-offset.top*ratio)+"px) scale("+(1+((scale-1) * ratio))+")"
             }))+ "}");
-        }, 25);
-        $body.addClass("grow").removeClass("grown").removeClass("shrink");
-        setTimeout(function() {
-          $body.removeClass("grow").addClass("zoomed");
-          $target.addClass("grown");
-          clearInterval(zoomIntervalId);
-        }, 1000);
+      }
+      emitAnimationStep(0);
+      
+      var startTime = new Date().getTime();
+      var zoomIntervalId = setInterval(function() {
+        var ratio = (new Date().getTime()-startTime)/1000;
+        emitAnimationStep(ratio);
+      }, 25);
+
+      $body.addClass("grow").removeClass("grown").removeClass("shrink");
+      setTimeout(function() {
+        $body.removeClass("grow").addClass("zoomed");
+        $target.addClass("grown");
+        clearInterval(zoomIntervalId);
+      }, 1000);
     }
 
     $currentTarget = $target;
   };
 
 
-  $.zoomOut = function() {
+  jQuery.zoomOut = function() {
     if ($currentTarget == null)
       return;
 
@@ -171,28 +172,28 @@ $(function() {
         $("body").removeClass("shrink");
       }, 1000);
     } else if ($.browser.mozilla) {
-      $body.append("<style type='text/css' class='dynamicCSS'>"+
-        ".shrink {"+
-        emitProperties(css3({
-          "transform-origin": offset.left+"px "+offset.top+"px"
-        }))+
-        "}\n</style>");
-
-        var startTime = new Date().getTime();
-        var zoomIntervalId = setInterval(function() {
-          var ratio = 1-((new Date().getTime()-startTime)/1000);
-          $body.append("<style type='text/css' class='dynamicCSS'>"+
-          ".grow {"+
+      function emitAnimationStep(ratio) {
+        $("body").append("<style type='text/css' class='dynamicCSS'>"+
+          ".shrink {"+
             emitProperties(css3({
               "transform-origin": offset.left+"px "+offset.top+"px",
               "transform": "translate("+(-offset.left*ratio)+"px,"+(-offset.top*ratio)+"px) scale("+(1+(scale-1) * ratio)+")"
             }))+ "}");
-        }, 25);
-        $body.addClass("grow").removeClass("grown").removeClass("shrink");
-        setTimeout(function() {
-          $body.removeClass("shrink");
-          clearInterval(zoomIntervalId);
-        }, 1000);
+      }
+
+      emitAnimationStep(1);
+      var startTime = new Date().getTime();
+      var zoomIntervalId = setInterval(function() {
+        var ratio = 1-((new Date().getTime()-startTime)/1000);
+        emitAnimationStep(ratio)
+      }, 50);
+
+      $("body").removeClass("grow").removeClass("grown").addClass("shrink");
+      
+      setTimeout(function() {
+        $("body").removeClass("shrink");
+        clearInterval(zoomIntervalId);
+      }, 1000);
     }
 
     $currentTarget = null;
@@ -209,33 +210,10 @@ $(function() {
     return parts.join("\n");
   }
 
-  var $body = $("body").css({
-    "animation-duration" : "1s",
-    "animation-iteration-count": 1
-  });
-  
-
-
-
-  var scale = 20;
-  $(".shrunk").scale(20).each(function(i, e) {
-    var $e = $(e);   
-      
-    $e.click(function() {        
-      if ($currentTarget != null) {
-        return true;
-      }
-      $.zoomTo(this);
-      return false;
+  $(function() {
+    $("body").css({
+      "animation-duration" : "1s",
+      "animation-iteration-count": 1
     });
-      
-    $e.find(".zoomOut").click(function() {        
-      if ($currentTarget == null) {
-        return true;
-      }
-      
-      $.zoomOut();
-      return false;
-    });
-  });           
-});
+  })
+})(jQuery);
