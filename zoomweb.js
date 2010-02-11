@@ -26,6 +26,8 @@
     return result;
   }
 
+  // Modifies jQuery's css method so that it expands CSS3
+  // properties to their browser specific equivalents.
   (function(){
     var oldCSS = $.fn.css;
     $.fn.css = function(arg1, arg2) {
@@ -46,22 +48,20 @@
     }
   })();
 
-  jQuery.fn.scale = function(s) {
+  $.fn.scale = function(s) {
     for (var i=0; i<this.length; i++) {
       var $e = $(this[i]);
-      var size = {
-        width: $e.width(),
-        height: $e.height()
-      };
+      var width = $e.width();
+      var height = $e.height()
 
       $e.css({
-        "width": size.width,
-        "height": size.height,        
+        "width": width,
+        "height": height,        
         "transform": "scale("+(1/s)+")",
         "transform-origin": "0 0"
       }).wrap("<div class='shrunkContainer'/>").parent().css({
-        width: (size.width*(1/s)),
-        height:(size.height*(1/s)),
+        width: (width*(1/s)),
+        height:(height*(1/s)),
         overflow: "hidden"
       });
 
@@ -74,7 +74,7 @@
 
   var $currentTarget = null;
   
-  jQuery.zoomTo = function (target) {
+  $.zoomTo = function (target) {
     var $target = $(target);    
     var offset = $target.data("offset");   
     var scale = $target.data("scale");
@@ -83,25 +83,55 @@
 
     $(".dynamicCSS").remove();
 
+    var parts = [];
+    function collectCSS(key, value) {
+      if (typeof(key) == "string") {
+        if (typeof(value) == "object") {
+          parts.push(key);
+          parts.push("{");
+          collectCSS(value);
+          parts.push("}");
+        } else {
+          parts.push(key);
+          parts.push(":");
+          parts.push(value);
+          parts.push(";");
+        }
+      } else {
+	for (propertyName in key) {
+          collectCSS(propertyName, key[propertyName]);
+        }
+      }
+    }
+
+    function buildCSS(key, value) {
+      parts=[];
+      collectCSS(key, value);
+      alert(parts.join(""));
+      return parts.join("");
+    }
+
     if ($.browser.webkit) {
       $body.append("<style type='text/css' class='dynamicCSS'>"+
-        ".grow {"+
-        emitProperties(css3({
-          "transform-origin": offset.left+"px "+offset.top+"px",
-          "animation-name": "grow-anim",
-          "width": "100%"
-        }))+
-        "}\n"+
-        "@-webkit-keyframes grow-anim {\n"+
-        "0% { -webkit-transform: translate(0, 0); scale(1)}\n "+
-        "100% { -webkit-transform: translate("+(-offset.left)+"px, "+(-offset.top)+"px) scale("+scale+");  }\n"+
-        "}\n "+
-        ".zoomed {\n" +
-        emitProperties(css3({
-          "transform-origin": offset.left + "px "+offset.top + "px",
-          "transform": "translate("+(-offset.left)+"px,"+(-offset.top)+"px) scale("+scale+")"
-        }))+ "}\n</style>");
-
+        buildCSS({
+	  ".grow": css3({
+            "transform-origin": offset.left+"px "+offset.top+"px",
+            "animation-name": "grow-anim",
+            "width": "100%"
+          }),
+          "@-webkit-keyframes grow-anim": {
+            "0%": {"-webkit-transform": "translate(0, 0); scale(1)"},
+            "100%": {
+              "-webkit-transform": "translate("+(-offset.left)+"px, "+(-offset.top)+"px) scale("+scale+")"
+            }
+          },
+	  ".zoomed": css3({
+            "transform-origin": offset.left + "px "+offset.top + "px",
+            "transform": "translate("+(-offset.left)+"px,"+(-offset.top)+"px) scale("+scale+")"
+          })
+        })
+        +"</style>");
+      
       $body.addClass("grow").removeClass("grown").removeClass("shrink");
       setTimeout(function() {
         $body.removeClass("grow").addClass("zoomed");
@@ -157,15 +187,20 @@
 
     if ($.browser.webkit) {
       $("body").append("<style type='text/css' class='dynamicCSS'>"+
-        ".shrink {"+
-        "-webkit-transform-origin: "+offset.left+"px "+offset.top+"px; "+
-        "-webkit-animation-name: shrink-anim;"+
-        "}"+
-        "@-webkit-keyframes shrink-anim {"+
-        "0% { -webkit-transform: translate("+(-offset.left)+"px, "+(-offset.top)+"px) scale("+scale+");  }"+
-        "100% { -webkit-transform: scale(1) translate(0, 0); } "+
-        "}"+
-        "</style>");
+        buildCSS({
+          ".shrink": {
+            "-webkit-transform-origin": offset.left+"px "+offset.top+"px; ",
+            "-webkit-animation-name": "shrink-anim;"
+          },
+          "@-webkit-keyframes shrink-anim": {
+            "0%": {
+              "-webkit-transform": "translate("+(-offset.left)+"px, "+(-offset.top)+"px) scale("+scale+")"
+            },
+            "100%": {
+              "-webkit-transform": "scale(1) translate(0, 0)"
+            }
+          }
+        })+"</style>");
 
       $("body").removeClass("grow").removeClass("zoomed").addClass("shrink");
       setTimeout(function() {
@@ -174,11 +209,10 @@
     } else if ($.browser.mozilla) {
       function emitAnimationStep(ratio) {
         $("body").append("<style type='text/css' class='dynamicCSS'>"+
-          ".shrink {"+
-            emitProperties(css3({
-              "transform-origin": offset.left+"px "+offset.top+"px",
-              "transform": "translate("+(-offset.left*ratio)+"px,"+(-offset.top*ratio)+"px) scale("+(1+(scale-1) * ratio)+")"
-            }))+ "}");
+          buidlCSS(".shrink", css3({
+            "transform-origin": offset.left+"px "+offset.top+"px",
+            "transform": "translate("+(-offset.left*ratio)+"px,"+(-offset.top*ratio)+"px) scale("+(1+(scale-1) * ratio)+")"
+          }))+"</style>";
       }
 
       emitAnimationStep(1);
@@ -197,17 +231,6 @@
     }
 
     $currentTarget = null;
-  }
-
-
-  function emitProperties(properties) {
-    var parts = [];
-
-    for (propertyName in properties) {
-      parts.push(propertyName +":" + properties[propertyName]+";");
-    }
-    
-    return parts.join("\n");
   }
 
   $(function() {
