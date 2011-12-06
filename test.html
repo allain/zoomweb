@@ -1,151 +1,189 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
-  <head>
-    <title>Zoomable User Interface Plugin for jQuery</title>
-    <style type="text/css">
-      body {
-        margin: 0;
-        padding: 0;
-        -webkit-transform-origin: 50% 50%;
-        background-color: #444;
-      }
+    <head>
+        <title>Zoomable User Interface Plugin for jQuery</title>
+        <style type="text/css">
+            body {
+                margin: 0;
+                padding: 0;
+                -o-transition-property: -o-transform;
+                -o-transition-duration: 0.5s;
+                -o-transition-timing-function: linear;
+                -webkit-transition-property: -webkit-transform;
+                -webkit-transition-duration: 0.5s;
+                -webkit-transition-timing-function: linear;
+                -moz-transition-property: -moz-transform;
+                -moz-transition-duration: 0.5s;
+                -moz-transition-timing-function: linear;
 
-      .box {
-        display: block;
-        float: left;
-        background-color: #efefef;
-        border: 1px solid black;
-        margin: 0 -4px -4px 0;
-      }
+                -webkit-transform-origin: 50% 50%;
+                -o-transform-origin: 50% 50%;
+                -moz-transform-origin: 50% 50%;
 
-      .shrunkContainer {
-        float: left;
-      }
+                background-color: #444;
+            }
 
-      a.zoomOut {
-        visibility: hidden;
-      }
+            .page {
+                display: block;
+                float: left;
+                background-color: #efefef;
+                border: 1px solid black;
+                margin: 0 -4px -4px 0;   
+                width: 900px;
+            }
 
-      .grown a.zoomOut {
-        visibility: visible;
-      }
+            .zoomContainer {
+                float: left;
+            }
 
-      #pageContainer {
-        width: 900px;
-        min-height: 1024px;
-        margin: 0 auto;
-        background-color: #fff;
-        color: #333;
-      }
+            #pageContainer {
+                width: 900px;
+                min-height: 1024px;
+                margin: 0 auto;
+                background-color: #fff;
+                color: #333;
+            }
 
-      h2 {
-        margin: 0px;
-      }
+            h2 {
+                margin: 0px;
+            }
 
-      .zoomOut {
-        float: right;
-        background-image: url(images/magnifying-glass.png);
-        background-repeat: no-repeat;
-        background-position: left center;
-        text-indent: -9999px;
-        width: 46px;
-        display: block;
-        height: 45px;
-        margin-right: 25px;        
-      }
+            #usage {
+                float: left;
+                width: 500px;
+            }
+        </style>
 
-      #usage {
-        float: left;
-        width: 500px;
-      }
-    </style>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" src="zoomweb.js"></script>
+        <script type="text/javascript">
+            $(function() {
+                var currentFocus = null;
 
-    <script type="text/javascript" src="jquery-1.4.1.min.js"></script>
-    <script type="text/javascript" src="zoomweb.js"></script>
-    <script type="text/javascript">
-      $(function() {
-        var currentFocus = null;
+                $(".shrunk").scale(5);
+                
+                $(".shrunk").click(function(e) {
+                    if (e.target.tagName.toLowerCase() === 'a')
+                        return;
+                    
+                    if (currentFocus == this) {
+                        $.zoomOut();
+                        currentFocus = null;
+                    } else {
+                        currentFocus = this;
+                        $.zoomTo(this);
+                    
+                    }
+                    return false;
+                });                
+            
+                $("body").mousedown(function(e) {
+                    if (e.which == 3) {
+                        e.preventDefault();
 
-        $(".shrunk").scale(5);
+                        $.zoomOut();
+                    
+                        return false;
+                    }
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div id="pageContainer">
+            <h2>Zoomable User Interface Plugin for jQuery</h2>
+           
+            <p><strong>Note:</strong> Currently supports Chrome(best), Safari (ok) and Firefox 3.5+ (adequately).</p>
 
-        
-        $(".shrunk").click(function() {          
-          if (currentFocus == null) {
-            currentFocus = this;
-            $.zoomTo(this);
-            return false;
-          }          
-        });
+            <div class="shrunk page" title="What is a Zoomable User Interface">
+                <h2>What is a Zoomable User Interface (<a href="http://en.wikipedia.org/wiki/Zooming_user_interface">from
+                        Wikipedia</a>)</h2>
 
-        $(".zoomOut").click(function() {
-          if (currentFocus != null) {
-            $.zoomOut();
-            currentFocus = null;
-            return false;
-          }
-          return true;
-        });
-      });
-    </script>
-  </head>
-  <body>
-    <div id="pageContainer">
-      <h2>Zoomable User Interface Plugin for jQuery</h2>
-      <p><strong>Instructions:</strong> Click on something shrunk to view it. When something is focused, click the magnifying glass (<img src="magnifying-glass.png" alt="magnifying glass" height="16" width="16" />) to zoom out.</p>
-      <p><strong>Note:</strong> Currently supports Chrome(best), Safari (ok) and Firefox 3.5+ (adequately).</p>
+                <p>In computing, a zooming user interface or zoomable user interface (ZUI, pronounced zoo-ee) is a graphical
+                    environment where users can change the scale of the viewed area in order to see more detail or less, and
+                    browse
+                    through different documents. A ZUI is a type of graphical user interface (GUI). Information elements appear
+                    directly
+                    on an infinite virtual desktop (usually created using vector graphics), instead of in windows. Users can pan
+                    across
+                    the virtual surface in two dimensions and zoom into objects of interest. For example, as you zoom into a
+                    text object
+                    it may be represented as a small dot, then a thumbnail of a page of text, then a full-sized page and finally
+                    a
+                    magnified view of the page.</p>
 
-      <div class="shrunk box" title="What is a Zoomable User Interface">
-        <a href="#" class="zoomOut">Zoom Out</a>
+                <p>ZUIs use zooming as the main metaphor for browsing through hyperlinked information. Objects present inside a
+                    zoomed
+                    page can in turn be zoomed themselves to reveal further detail, allowing for recursive nesting and an
+                    arbitrary level of zoom.</p>
 
-        <h2>What is a Zoomable User Interface (<a href="http://en.wikipedia.org/wiki/Zooming_user_interface">from Wikipedia</a>)</h2>
+                <p>When the level of detail present in the resized object is changed to fit the relevant information into the
+                    current
+                    size, instead of being a proportional view of the whole object, it's called semantic zooming.</p>
 
-        <p>In computing, a zooming user interface or zoomable user interface (ZUI, pronounced zoo-ee) is a graphical
-          environment where users can change the scale of the viewed area in order to see more detail or less, and browse
-          through different documents. A ZUI is a type of graphical user interface (GUI). Information elements appear directly
-          on an infinite virtual desktop (usually created using vector graphics), instead of in windows. Users can pan across
-          the virtual surface in two dimensions and zoom into objects of interest. For example, as you zoom into a text object
-          it may be represented as a small dot, then a thumbnail of a page of text, then a full-sized page and finally a
-          magnified view of the page.</p>
+                <p>Some experts consider the ZUI interface paradigm as a flexible and realistic successor to the traditional
+                    windowing GUI. But little effort is currently spent developing ZUIs, while there are ongoing efforts for
+                    developing GUIs.</p>
 
-        <p>ZUIs use zooming as the main metaphor for browsing through hyperlinked information. Objects present inside a zoomed
-          page can in turn be zoomed themselves to reveal further detail, allowing for recursive nesting and an arbitrary level of zoom.</p>
+                <img src="http://upload.wikimedia.org/wikipedia/en/5/55/ZUI_example.png" width="776" height="328"
+                     alt="ZUI Diagram"/>
+            </div>
 
-        <p>When the level of detail present in the resized object is changed to fit the relevant information into the current
-          size, instead of being a proportional view of the whole object, it's called semantic zooming.</p>
+            <div class="shrunk page" title="Piccolo2D">
+                <h2><a href="http://piccolo2d.org">Piccolo2D</a> - A Structured 2D Graphics Framework</h2>
 
-        <p>Some experts consider the ZUI interface paradigm as a flexible and realistic successor to the traditional
-          windowing GUI. But little effort is currently spent developing ZUIs, while there are ongoing efforts for developing GUIs.</p>
+                <p>Welcome to Piccolo2D! A revolutionary way to create robust, full-featured graphical applications in Java and
+                    C#,
+                    with striking visual effects such as zooming, animation and multiple representations.</p>
 
-        <img src="http://upload.wikimedia.org/wikipedia/en/5/55/ZUI_example.png" width="776" height="328" alt="ZUI Diagram" />
-      </div>
+                <p>Piccolo2D is a toolkit that supports the development of 2D structured graphics programs, in general, and
+                    Zoomable
+                    User Interfaces (ZUIs), in particular. A ZUI is a new kind of interface that presents a huge canvas of
+                    information on
+                    a traditional computer display by letting the user smoothly zoom in, to get more detailed information, and
+                    zoom out
+                    for an overview. We use a "scene graph" model that is common to 3D environments. Basically, this means that
+                    Piccolo2D
+                    maintains a hierarchal structure of objects and cameras, allowing the application developer to orient, group
+                    and
+                    manipulate objects in meaningful ways.</p>
 
-      <div class="shrunk box" title="Piccolo2D">
-        <a href="#" class="zoomOut">Zoom Out</a>
-        <h2><a href="http://piccolo2d.org">Piccolo2D</a> - A Structured 2D Graphics Framework</h2>
+                <p>Why use Piccolo2D? It will allow you to build structured graphical applications without worrying so much
+                    about
+                    the low level details. The infrastructure provides efficient repainting of the screen, bounds management,
+                    event
+                    handling and dispatch, picking (determining which visual object the mouse is over), animation, layout, and
+                    more.
+                    Normally, you would have to write all of this code from scratch. Additionally, if you want to build an
+                    application
+                    with zooming, that's built right into the framework too.</p>
 
-        <p>Welcome to Piccolo2D! A revolutionary way to create robust, full-featured graphical applications in Java and C#,
-          with striking visual effects such as zooming, animation and multiple representations.</p>
-
-        <p>Piccolo2D is a toolkit that supports the development of 2D structured graphics programs, in general, and Zoomable
-          User Interfaces (ZUIs), in particular. A ZUI is a new kind of interface that presents a huge canvas of information on
-          a traditional computer display by letting the user smoothly zoom in, to get more detailed information, and zoom out
-          for an overview. We use a "scene graph" model that is common to 3D environments. Basically, this means that Piccolo2D
-          maintains a hierarchal structure of objects and cameras, allowing the application developer to orient, group and
-          manipulate objects in meaningful ways.</p>
-
-        <p>Why use Piccolo2D? It will allow you to build structured graphical applications without worrying so much about
-          the low level details. The infrastructure provides efficient repainting of the screen, bounds management, event
-          handling and dispatch, picking (determining which visual object the mouse is over), animation, layout, and more.
-          Normally, you would have to write all of this code from scratch. Additionally, if you want to build an application
-          with zooming, that's built right into the framework too.</p>
-
-        <p>What exactly is it? Piccolo2D is a layer built on top of a lower level graphics API. There are currently three
-          versions of the toolkit: Piccolo2D.Java, Piccolo2D.NET and PocketPiccolo2D.NET (for the .NET Compact Framework).
-          The java version is built on Java 2 and relies on the Java2D API to do its graphics rendering. The .NET version is
-          built on the .NET Framework and relies on the GDI+ API to do its graphics rendering. This makes it easy for Java and
-          C# programmers, even those targeting PDAs, to build their own animated graphical applications. And best of all,
-          Piccolo2D is free and open source!</p>
-      </div>   
-    </div>
-  </body>
+                <p>What exactly is it? Piccolo2D is a layer built on top of a lower level graphics API. There are currently
+                    three
+                    versions of the toolkit: Piccolo2D.Java, Piccolo2D.NET and PocketPiccolo2D.NET (for the .NET Compact
+                    Framework).
+                    The java version is built on Java 2 and relies on the Java2D API to do its graphics rendering. The .NET
+                    version is
+                    built on the .NET Framework and relies on the GDI+ API to do its graphics rendering. This makes it easy for
+                    Java and
+                    C# programmers, even those targeting PDAs, to build their own animated graphical applications. And best of
+                    all,
+                    Piccolo2D is free and open source!</p>
+            </div>
+            
+            <div class="shrunk page">
+                <h2>This is a test Panel</h2>
+                <div class="shrunk page">
+                    <h2>This is a subpage</h2>
+                    <p>Testing 1, 2, 3</p>
+                </div>
+                
+                <div class="shrunk page">
+                    <h2>This is a subpage</h2>
+                    <p>Testing 1, 2, 3</p>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>
